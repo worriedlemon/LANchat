@@ -3,6 +3,8 @@ using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Text.Json;
+using System.Text;
 
 namespace LANchat.Connection
 {
@@ -17,17 +19,14 @@ namespace LANchat.Connection
 
         public InformationPacket(byte[] bytes) : base(PacketDataType.INFO)
         {
-            BinaryFormatter bf = new BinaryFormatter();
-            MemoryStream ms = new MemoryStream(bytes.Skip(1).ToArray());
-            Information = bf.Deserialize(ms) as AppSettings;
+            Information = JsonSerializer.Deserialize<AppSettings>(bytes.Skip(1).ToArray(),
+                new JsonSerializerOptions() { IncludeFields = true });
         }
 
         public override byte[] ToByteArray()
         {
-            BinaryFormatter bf = new BinaryFormatter();
-            MemoryStream ms = new MemoryStream();
-            bf.Serialize(ms, Information);
-            return base.ToByteArray().Concat(ms.ToArray()).ToArray();
+            return Encoding.UTF8.GetBytes(JsonSerializer.Serialize(Information, new JsonSerializerOptions()
+            { IncludeFields = true })).Prepend(base.ToByteArray()[0]).ToArray();
         }
 
         public override void Apply(MainWindow mw, ChatClient client)

@@ -6,7 +6,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using System;
-using System.Threading;
+using System.Linq;
 
 namespace LANchat
 {
@@ -21,8 +21,6 @@ namespace LANchat
         private ChatClient _currentChat = null;
 
         private List<ChatClient> _connections = new List<ChatClient>();
-
-        private CancellationToken _asyncCancelToken = CancellationToken.None; 
 
         public MainWindow()
         {
@@ -91,8 +89,18 @@ namespace LANchat
             while (connection.Client.Connected)
             {
                 byte[] buffer = new byte[1024];
+                int count = 0;
 
-                await Task.Run(() => { connection.Client.Receive(buffer); });
+                await Task.Run(() => {
+                    try
+                    {
+                        count = connection.Client.Receive(buffer);
+                    }
+                    catch (SocketException)
+                    {
+                        Console.WriteLine("Connection to {0} dropped", connection);
+                    }
+                });
 
                 AbstractTcpPacket packet;
                 switch ((PacketDataType)buffer[0])
@@ -101,10 +109,10 @@ namespace LANchat
                         packet = new RequestPacket();
                         break;
                     case PacketDataType.INFO:
-                        packet = new InformationPacket(buffer);
+                        packet = new InformationPacket(buffer.Take(count).ToArray());
                         break;
                     case PacketDataType.MESSAGE:
-                        packet = new MessagePacket(buffer);
+                        packet = new MessagePacket(buffer.Take(count).ToArray());
                         break;
                     default:
                         Console.WriteLine("Unknown packet caught - data type is wrong. Skipping...");
@@ -112,26 +120,32 @@ namespace LANchat
                 }
                 Console.WriteLine("Detected packet {0}", (PacketDataType)buffer[0]);
                 packet.Apply(this, connection);
-
-                //if ((PacketDataType)buffer[0] == PacketDataType.REQUEST) connection.Close();
             }
             _connections.Remove(connection);
         }
 
         public void UpdateClientInfo(ChatClient client, AppSettings info)
         {
-            ChatClient found = _connections.Find((such) =>
+            ChatClient found;
+            try
             {
-                string firstIp = such.Client.LocalEndPoint.ToString(), secondIp = client.Client.LocalEndPoint.ToString();
-                return firstIp.Substring(0, firstIp.Length - 6) == secondIp.Substring(0, secondIp.Length - 6);
-            });
+                found = _connections.Find((other) =>
+                {
+                    return other.Client.LocalEndPoint.Equals(client.Client.RemoteEndPoint);
+                });
+            }
+            catch (ArgumentNullException)
+            {
+                found = client;
+                _connections.Add(found);
+            }
             found.UpdateInformation(info.Username);
             UpdateChatList();
         }
 
         private void UpdateChatList()
         {
-            //ChatList.ItemsSource = null;
+            ChatList.ItemsSource = null;
             ChatList.ItemsSource = _connections;
         }
 
@@ -153,6 +167,16 @@ namespace LANchat
                 SendMessage(sender, null);
                 PlaceholderText.Content = string.Empty;
             }
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            //if (new ExitDialog().ShowDialog().Value == false) return;
+            foreach (ChatClient connection in _connections)
+            {
+                connection.Close();
+            }
+            _connections.Clear();
         }
     }
 }

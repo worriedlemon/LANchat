@@ -1,16 +1,12 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Runtime.Serialization.Formatters.Binary;
+﻿using System.Linq;
 using System.Text;
+using System.Text.Json;
 
 namespace LANchat.Connection
 {
     public class MessagePacket : AbstractTcpPacket
     {
-        [Serializable]
+        [System.Serializable]
         public class MessageTimePair
         {
             public string Message;
@@ -27,22 +23,19 @@ namespace LANchat.Connection
 
         public MessagePacket(string message) : base(PacketDataType.MESSAGE)
         {
-            MessageAndTime = new MessageTimePair(message, DateTime.Now.ToBinary());
+            MessageAndTime = new MessageTimePair(message, System.DateTime.Now.ToBinary());
         }
 
         public MessagePacket(byte[] bytes) : base(PacketDataType.MESSAGE)
         {
-            BinaryFormatter bf = new BinaryFormatter();
-            MemoryStream ms = new MemoryStream(bytes.Skip(1).ToArray());
-            MessageAndTime = bf.Deserialize(ms) as MessageTimePair;
+            MessageAndTime = JsonSerializer.Deserialize<MessageTimePair>(bytes.Skip(1).ToArray(),
+                new JsonSerializerOptions() { IncludeFields = true });
         }
 
         public override byte[] ToByteArray()
         {
-            BinaryFormatter bf = new BinaryFormatter();
-            MemoryStream ms = new MemoryStream();
-            bf.Serialize(ms, MessageAndTime);
-            return base.ToByteArray().Concat(ms.ToArray()).ToArray();
+            return Encoding.UTF8.GetBytes(JsonSerializer.Serialize(MessageAndTime, new JsonSerializerOptions()
+            { IncludeFields = true })).Prepend(base.ToByteArray()[0]).ToArray();
         }
 
         public override void Apply(MainWindow mw, ChatClient client)

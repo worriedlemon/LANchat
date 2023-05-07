@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     x:Class="LANchat.MainWindow"
         mc:Ignorable="d"
-        Title="ApplicationName" Height="450" Width="800">
+        Title="ApplicationName" Height="450" Width="800" Closing="Window_Closing">
     <Grid x:Name="MainLayout">
         <Grid.RowDefinitions>
             <RowDefinition Height="50"/>

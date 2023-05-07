@@ -61,7 +61,8 @@ namespace LANchat
                 IPAddress ipAddress = IPAddress.Parse($"{IPByte1.Text}.{IPByte2.Text}.{IPByte3.Text}.{IPByte4.Text}");
                 ChatClient newConnection = new ChatClient(new TcpClient(ipAddress.ToString(), Convert.ToUInt16(PortSegment.Text)));
                 newConnection.SendPacket(new RequestPacket());
-                 _pw.StartReceivingFromConnection(newConnection);
+                _pw.StartReceivingFromConnection(newConnection);
+                newConnection.SendPacket(new InformationPacket(App.Settings));
                 Close();
             }
             catch (FormatException)
