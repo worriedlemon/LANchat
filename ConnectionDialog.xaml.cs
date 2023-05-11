@@ -67,11 +67,11 @@ namespace LANchat
             }
             catch (FormatException)
             {
-                new ExceptionDialog("Entered IP address has wrong format!").ShowDialog();
+                MessageBox.Show("Entered IP address has wrong format!", "Format error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             catch (Exception exc) when (exc is SocketException || exc is ArgumentException)
             {
-                new ExceptionDialog(exc.Message).ShowDialog();
+                MessageBox.Show(exc.Message, "Connection error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

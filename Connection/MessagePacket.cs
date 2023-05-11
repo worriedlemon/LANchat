@@ -40,8 +40,7 @@ namespace LANchat.Connection
 
         public override void Apply(MainWindow mw, ChatClient client)
         {
-            mw.ChatWindow.Text += $"[{client.Name}]: {MessageAndTime.Message}\n";
-            //mw.TimeWindow.Text += $"{MessageAndTime.Time}\n";
+            mw.ProcessMessage(MessageAndTime.Message, MessageAndTime.Time, client);
         }
     }
 }

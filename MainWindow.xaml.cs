@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using System;
 using System.Linq;
+using System.Text;
 
 namespace LANchat
 {
@@ -21,6 +22,7 @@ namespace LANchat
         private ChatClient _currentChat = null;
 
         private List<ChatClient> _connections = new List<ChatClient>();
+        private Dictionary<ChatClient, List<string>> _history = new Dictionary<ChatClient, List<string>>();
 
         public MainWindow()
         {
@@ -42,6 +44,11 @@ namespace LANchat
         public void UpdateAppSettingsInfo()
         {
             AppSettingInfo.Content = App.Settings.ToString();
+            InformationPacket info = new InformationPacket(App.Settings);
+            foreach (ChatClient client in _connections)
+            {
+                client.SendPacket(info);
+            }
         }
 
         private void AddConnectionButton_Click(object sender, RoutedEventArgs e) => new ConnectionDialog(this).Show();
@@ -56,20 +63,39 @@ namespace LANchat
             if (MessageTextBox.Text == string.Empty) PlaceholderText.Content = "Write your message...";
         }
 
+        public void ProcessMessage(string message, long time, ChatClient client = null)
+        {
+            string username = client == null ? App.Settings.Username : client.Name; 
+            string userTimeString = $"[{username}] at {DateTime.FromBinary(time):hh:mm:ss dd/MM/yyyy}";
+            if (client == null) client = _currentChat;
+            _history[client].Add(userTimeString);
+            _history[client].Add(message);
+            if (client == _currentChat)
+            {
+                Messages.Items.Add(userTimeString);
+                Messages.Items.Add(message);
+            }
+        }
+
         private void SendMessage(object sender, RoutedEventArgs e)
         {
             MessagePacket mp = new MessagePacket(MessageTextBox.Text);
             _currentChat.SendPacket(mp);
-            ChatWindow.Text += $"[{App.Settings.Username}]: {MessageTextBox.Text}\n";
+            ProcessMessage(MessageTextBox.Text, DateTime.Now.ToBinary());
             MessageTextBox.Text = string.Empty;
             PlaceholderText.Content = "Write your message...";
         }
 
         private void ChatList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (e.AddedItems.Count == 0) return;
+            Messages.Items.Clear();
             _currentChat = e.AddedItems[0] as ChatClient;
             MessageWindowLayout.Visibility = Visibility.Visible;
-            foreach (ChatClient removedChat in e.RemovedItems) removedChat.Close();
+            foreach (string str in _history[_currentChat])
+            {
+                Messages.Items.Add(str);
+            }
         }
 
         private async void AcceptConnectionsAsync()
@@ -79,6 +105,7 @@ namespace LANchat
                 TcpClient client = await _listener.AcceptTcpClientAsync();
                 ChatClient connection = new ChatClient(client);
                 _connections.Add(connection);
+                _history.Add(connection, new List<string>());
                 UpdateChatList();
                 StartReceivingFromConnection(connection);
             }
@@ -91,16 +118,19 @@ namespace LANchat
                 byte[] buffer = new byte[1024];
                 int count = 0;
 
-                await Task.Run(() => {
+                if (await Task.Run(() => {
+                    string clientName = connection.ToString();
                     try
                     {
                         count = connection.Client.Receive(buffer);
+                        return 0;
                     }
                     catch (SocketException)
                     {
-                        Console.WriteLine("Connection to {0} dropped", connection);
+                        Console.WriteLine("Connection to {0} dropped", clientName);
+                        return -1;
                     }
-                });
+                }) == -1) continue;
 
                 AbstractTcpPacket packet;
                 switch ((PacketDataType)buffer[0])
@@ -119,6 +149,7 @@ namespace LANchat
                         continue;
                 }
                 Console.WriteLine("Detected packet {0}", (PacketDataType)buffer[0]);
+                Console.WriteLine(Encoding.UTF8.GetString(buffer));
                 packet.Apply(this, connection);
             }
             _connections.Remove(connection);
@@ -127,17 +158,15 @@ namespace LANchat
         public void UpdateClientInfo(ChatClient client, AppSettings info)
         {
             ChatClient found;
-            try
+            if (_connections.Contains(client))
             {
-                found = _connections.Find((other) =>
-                {
-                    return other.Client.LocalEndPoint.Equals(client.Client.RemoteEndPoint);
-                });
+                found = _connections.Find((other) => client == other);
             }
-            catch (ArgumentNullException)
+            else
             {
+                _connections.Add(client);
+                _history.Add(client, new List<string>());
                 found = client;
-                _connections.Add(found);
             }
             found.UpdateInformation(info.Username);
             UpdateChatList();
@@ -156,7 +185,6 @@ namespace LANchat
 
         private void MessageWindowLayout_Initialized(object sender, System.EventArgs e)
         {
-            ChatWindow.Text = string.Empty;
             MessageWindowLayout.Visibility = Visibility.Hidden;
         }
 
@@ -171,7 +199,6 @@ namespace LANchat
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            //if (new ExitDialog().ShowDialog().Value == false) return;
             foreach (ChatClient connection in _connections)
             {
                 connection.Close();

@@ -94,10 +94,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="ExceptionDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -115,9 +111,6 @@
     <Compile Include="Connection\Client.cs" />
     <Compile Include="Connection\InformationPacket.cs" />
     <Compile Include="Connection\RequestPacket.cs" />
-    <Compile Include="ExceptionDialog.xaml.cs">
-      <DependentUpon>ExceptionDialog.xaml</DependentUpon>
-    </Compile>
     <Compile Include="GlobalDefs.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>

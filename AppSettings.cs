@@ -8,6 +8,7 @@ namespace LANchat
         public string Username;
         public ushort Port;
 
+        [JsonIgnore]
         public bool IsDefaultPort
         {
             get
