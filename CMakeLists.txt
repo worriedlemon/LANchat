@@ -13,7 +13,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(QT NAMES Qt5)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets Network REQUIRED)
-find_package(Qt5 COMPONENTS Concurrent REQUIRED)
 
 set(PROJECT_SOURCES
         main.cpp
@@ -63,7 +62,6 @@ endif()
 
 target_link_libraries(LANchat PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_link_libraries(LANchat PRIVATE Qt${QT_VERSION_MAJOR}::Network)
-target_link_libraries(LANchat PRIVATE Qt${QT_VERSION_MAJOR}::Concurrent)
 
 set_target_properties(LANchat PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER worriedlemon.lanchat.com

@@ -8,11 +8,18 @@
 namespace Connection
 {
     ChatClient::ChatClient(QTcpSocket* instance, MainWindow& mw)
-        : Name("_ANONYMOUS_"),
+        : Name(""),
           mw(mw),
           connection(instance)
     {
         connect(connection, SIGNAL(readyRead()), this, SLOT(ReceivePacket()));
+    }
+
+    ChatClient::~ChatClient()
+    {
+        disconnect(connection, SIGNAL(readyRead()), this, SLOT(ReceivePacket()));
+        connection->close();
+        delete connection;
     }
 
     void ChatClient::SendPacket(AbstractTcpPacket& pkg)
@@ -32,8 +39,8 @@ namespace Connection
         {
             name = "(" + Name + ") ";
         }
-        return name + QHostAddress(connection->localAddress().toIPv4Address()).toString()
-                + ":" + QString::number(connection->localPort());
+        return name + QHostAddress(connection->peerAddress().toIPv4Address()).toString()
+                + ":" + QString::number(connection->peerPort());
     }
 
     void ChatClient::ReceivePacket()

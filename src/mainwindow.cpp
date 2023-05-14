@@ -18,7 +18,8 @@ extern AppSettings SETTINGS;
 
 MainWindow::MainWindow()
     : QMainWindow(nullptr),
-      ui(new Ui::MainWindow)
+      ui(new Ui::MainWindow),
+      currentChat(nullptr)
 {
     ui->setupUi(this);
 
@@ -73,13 +74,30 @@ void MainWindow::AddConnection(ChatClientItem* item)
     ui->ChatList->addItem(item);
 }
 
+void MainWindow::RemoveConnection()
+{
+    ui->ChatList->clearSelection();
+    ui->ChatList->removeItemWidget(currentChat);
+    history.remove(currentChat->GetLink());
+    delete currentChat;
+    currentChat = nullptr;
+    ui->DisconnectButton->setEnabled(false);
+    ui->MessageTextEdit->setEnabled(false);
+}
+
 void MainWindow::ShowChatFor(QListWidgetItem* item)
 {
-    if (!ui->ChatWindow->isEnabled()) ui->ChatWindow->setEnabled(true);
+    if (currentChat == nullptr)
+    {
+        ui->DisconnectButton->setEnabled(true);
+        ui->MessageTextEdit->setEnabled(true);
+    }
+
+    currentChat = (ChatClientItem*)item;
 
     ui->MessageArea->clear();
     qLOG << "Showing chat window for " << item->text();
-    for (QString const & text : history[((ChatClientItem*)item)->GetLink()])
+    for (QString const & text : history[currentChat->GetLink()])
         ui->MessageArea->addItem(text);
 }
 
@@ -100,22 +118,20 @@ void MainWindow::ProcessMessage(MessageTimePair const & pair, ChatClient* client
             tr(" at ") + QDateTime::fromSecsSinceEpoch(pair.Time).toString("hh:mm:ss dd/MM/yyyy");
     QString messageString = pair.Message;
 
-    ChatClient* current = ((ChatClientItem*)ui->ChatList->currentItem())->GetLink();
-    if (client == nullptr) client = current;
+    if (client == nullptr) client = currentChat->GetLink();
 
     history[client].append(timeUserString);
     history[client].append(messageString);
-    if (client == current) ProcessMessage(timeUserString, messageString);
+    if (client == currentChat->GetLink()) ProcessMessage(timeUserString, messageString);
 }
 
 void MainWindow::SendMessage()
 {
     if (!ui->SendButton->isEnabled()) return;
 
-    ChatClient* current = ((ChatClientItem*)ui->ChatList->currentItem())->GetLink();
     QString msg = ui->MessageTextEdit->text();
     MessagePacket pkg(msg);
-    current->SendPacket(pkg);
+    currentChat->GetLink()->SendPacket(pkg);
     ProcessMessage(MessageTimePair(msg, QDateTime::currentSecsSinceEpoch()));
     ui->MessageTextEdit->clear();
 }

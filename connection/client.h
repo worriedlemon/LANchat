@@ -20,6 +20,7 @@ namespace Connection
         QString Name;
 
         explicit ChatClient(QTcpSocket* instance, MainWindow& mw);
+        ~ChatClient();
 
         void SendPacket(AbstractTcpPacket& pkg);
         void UpdateInformation(QString name);

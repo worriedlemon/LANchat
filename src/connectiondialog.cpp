@@ -92,8 +92,9 @@ void ConnectionDialog::accept()
     emit ConnectionReady(new Connection::ChatClientItem(client));
 
     Connection::RequestPacket requestForInformation;
-    Connection::InformationPacket information(SETTINGS);
     client->SendPacket(requestForInformation);
+
+    Connection::InformationPacket information(SETTINGS);
     client->SendPacket(information);
 
     QDialog::accept();

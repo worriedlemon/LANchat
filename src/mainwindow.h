@@ -28,6 +28,7 @@ class MainWindow : public QMainWindow
 
     Ui::MainWindow *ui;
     QTcpServer listener;
+    Connection::ChatClientItem* currentChat;
     QMap<Connection::ChatClient*, QList<QString>> history;
 
 public:
@@ -49,6 +50,7 @@ private slots:
     void AcceptConnection();
     void ShowChatFor(QListWidgetItem* item);
     void SendMessage();
+    void RemoveConnection();
 
 public slots:
     void AddConnection(Connection::ChatClientItem* item);
