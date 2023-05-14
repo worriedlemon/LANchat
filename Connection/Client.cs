@@ -26,7 +26,7 @@ namespace LANchat.Connection
             {
                 tempName = $"({Name}) ";
             }
-            return $"{tempName}{Client.LocalEndPoint}";
+            return $"{tempName}{Client.RemoteEndPoint}";
         }
     }
 }

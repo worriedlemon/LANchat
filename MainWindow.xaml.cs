@@ -7,7 +7,6 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using System;
 using System.Linq;
-using System.Text;
 
 namespace LANchat
 {
@@ -21,15 +20,16 @@ namespace LANchat
         private TcpListener _listener = new TcpListener(IPAddress.Any, App.Settings.Port);
         private ChatClient _currentChat = null;
 
-        private List<ChatClient> _connections = new List<ChatClient>();
-        private Dictionary<ChatClient, List<string>> _history = new Dictionary<ChatClient, List<string>>();
+        private readonly List<ChatClient> _connections = new List<ChatClient>();
+        private readonly Dictionary<ChatClient, List<string>> _history = new Dictionary<ChatClient, List<string>>();
 
         public MainWindow()
         {
             InitializeComponent();
+            Title = GlobalDefs.ApplicationTitle;
+
             _listener.Start();
             AcceptConnectionsAsync();
-            Title = GlobalDefs.ApplicationTitle;
             UpdateAppSettingsInfo();
         }
 
@@ -54,7 +54,6 @@ namespace LANchat
         private void AddConnectionButton_Click(object sender, RoutedEventArgs e) => new ConnectionDialog(this).Show();
 
         private void SettingsButton_Click(object sender, RoutedEventArgs e) => new SettingsDialog(this).Show();
-
 
         private void MessageTextBox_GotFocus(object sender, RoutedEventArgs e) => PlaceholderText.Content = string.Empty;
 
@@ -88,14 +87,27 @@ namespace LANchat
 
         private void ChatList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (e.AddedItems.Count == 0) return;
+            bool elementsEnabled = e.AddedItems.Count != 0;
+            DisconnectButton.IsEnabled = elementsEnabled;
+            MessageTextBox.IsEnabled = elementsEnabled;
             Messages.Items.Clear();
-            _currentChat = e.AddedItems[0] as ChatClient;
-            MessageWindowLayout.Visibility = Visibility.Visible;
-            foreach (string str in _history[_currentChat])
+            _currentChat = elementsEnabled ? e.AddedItems[0] as ChatClient : null;
+            if (_currentChat != null)
             {
-                Messages.Items.Add(str);
+                foreach (string str in _history[_currentChat])
+                {
+                    Messages.Items.Add(str);
+                }
             }
+        }
+
+        private void DisconnectButton_Click(object sender, RoutedEventArgs e)
+        {
+            _currentChat.Close();
+            _currentChat = null;
+            Messages.Items.Clear();
+            DisconnectButton.IsEnabled = false;
+            MessageTextBox.IsEnabled = false;
         }
 
         private async void AcceptConnectionsAsync()
@@ -118,19 +130,19 @@ namespace LANchat
                 byte[] buffer = new byte[1024];
                 int count = 0;
 
-                if (await Task.Run(() => {
+                if (!await Task.Run(() => {
                     string clientName = connection.ToString();
                     try
                     {
                         count = connection.Client.Receive(buffer);
-                        return 0;
                     }
                     catch (SocketException)
                     {
                         Console.WriteLine("Connection to {0} dropped", clientName);
-                        return -1;
+                        return false;
                     }
-                }) == -1) continue;
+                    return count != 0;
+                })) break;
 
                 AbstractTcpPacket packet;
                 switch ((PacketDataType)buffer[0])
@@ -149,10 +161,10 @@ namespace LANchat
                         continue;
                 }
                 Console.WriteLine("Detected packet {0}", (PacketDataType)buffer[0]);
-                Console.WriteLine(Encoding.UTF8.GetString(buffer));
                 packet.Apply(this, connection);
             }
             _connections.Remove(connection);
+            UpdateChatList();
         }
 
         public void UpdateClientInfo(ChatClient client, AppSettings info)
@@ -181,11 +193,6 @@ namespace LANchat
         private void MessageTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             SendMessageButton.IsEnabled = MessageTextBox.Text != string.Empty;
-        }
-
-        private void MessageWindowLayout_Initialized(object sender, System.EventArgs e)
-        {
-            MessageWindowLayout.Visibility = Visibility.Hidden;
         }
 
         private void MessageTextBox_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)

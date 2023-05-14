@@ -8,53 +8,47 @@
         Title="ApplicationName" Height="450" Width="800" Closing="Window_Closing">
     <Grid x:Name="MainLayout">
         <Grid.RowDefinitions>
-            <RowDefinition Height="50"/>
+            <RowDefinition Height="40"/>
             <RowDefinition/>
+            <RowDefinition Height="50"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
             <ColumnDefinition Width="3*"/>
         </Grid.ColumnDefinitions>
-        <Button x:Name="AddConnectionButton" Content="Add connection" Click="AddConnectionButton_Click" Margin="10,10,10,10" TabIndex="1"/>
-        <ListBox x:Name="ChatList" Grid.Row="1" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Top" Margin="10,10,10,10" SelectionChanged="ChatList_SelectionChanged"/>
+        <Button x:Name="AddConnectionButton" Content="Add connection" Click="AddConnectionButton_Click" Margin="10,5,5,5" TabIndex="1"/>
+        <ListBox x:Name="ChatList" Grid.Row="1" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Top" Margin="10,5,5,5" SelectionChanged="ChatList_SelectionChanged"/>
         <Label Grid.Column="1" Content="Current session:" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center" VerticalContentAlignment="Center" HorizontalContentAlignment="Stretch"/>
         <Button Grid.Column="1" Content="Settings" HorizontalAlignment="Right" HorizontalContentAlignment="Stretch" Margin="0,10,10,10" Padding="10,1,10,1" TabIndex="2" Click="SettingsButton_Click"/>
-        <Border BorderBrush="Black" BorderThickness="1" Grid.Column="1" Grid.Row="1" Margin="10,10,10,10">
-            <Grid x:Name="MessageWindowLayout" ShowGridLines="True" Initialized="MessageWindowLayout_Initialized">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="40"/>
-                </Grid.RowDefinitions>
-                <Grid Grid.Row="1">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="5*"/>
-                        <ColumnDefinition Width="1*"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBox x:Name="MessageTextBox" TextWrapping="Wrap" VerticalContentAlignment="Center" VerticalScrollBarVisibility="Auto" BorderThickness="0,0,0,0" HorizontalScrollBarVisibility="Disabled" MaxLines="1" MaxLength="256" Padding="5,0,5,0" GotFocus="MessageTextBox_GotFocus" LostFocus="MessageTextBox_LostFocus" BorderBrush="{x:Null}" TextChanged="MessageTextBox_TextChanged" KeyDown="MessageTextBox_KeyDown"/>
-                    <Label x:Name="PlaceholderText" Content="Write your message..." VerticalContentAlignment="Center" Padding="5,0,5,0" HorizontalContentAlignment="Stretch" IsHitTestVisible="False" Opacity="0.5"  Panel.ZIndex="1"/>
-                    <Button Grid.Column="2" x:Name="SendMessageButton" Content="Send" Margin="5,5,5,5" Click="SendMessage" IsEnabled="False"/>
-                    <GridSplitter Width="3" />
-                </Grid>
-                <ListView x:Name="Messages" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" AlternationCount="2">
-                    <ListView.ItemContainerStyle>
-                        <Style TargetType="{x:Type ListViewItem}">
-                            <Setter Property="Focusable" Value="false"/>
-                            <Style.Triggers>
-                                <Trigger Property="ListView.AlternationIndex" Value="0">
-                                    <Setter Property="Background" Value="White"/>
-                                    <Setter Property="Foreground" Value="Black"/>
-                                </Trigger>
-                                <Trigger Property="ListView.AlternationIndex" Value="1">
-                                    <Setter Property="Background" Value="WhiteSmoke"/>
-                                    <Setter Property="Foreground" Value="Black"/>
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </ListView.ItemContainerStyle>
-                </ListView>
-            </Grid>
+        <Border BorderBrush="Black" BorderThickness="1" Grid.Column="1" Grid.Row="1" Margin="5,5,10,5">
+            <ListView x:Name="Messages" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" AlternationCount="2">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="{x:Type ListViewItem}">
+                        <Setter Property="Focusable" Value="false"/>
+                        <Style.Triggers>
+                            <Trigger Property="ListView.AlternationIndex" Value="0">
+                                <Setter Property="Background" Value="White"/>
+                                <Setter Property="Foreground" Value="Black"/>
+                            </Trigger>
+                            <Trigger Property="ListView.AlternationIndex" Value="1">
+                                <Setter Property="Background" Value="WhiteSmoke"/>
+                                <Setter Property="Foreground" Value="Black"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </ListView.ItemContainerStyle>
+            </ListView>
         </Border>
         <Label x:Name="AppSettingInfo" Grid.Column="1" Content="{}{AppSettings:Info}" HorizontalAlignment="Left" Margin="120,0,0,0" VerticalAlignment="Center" HorizontalContentAlignment="Stretch"/>
-
+        <Grid Grid.Row="2" Grid.Column="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="5*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+            <TextBox x:Name="MessageTextBox" TextWrapping="Wrap" VerticalContentAlignment="Center" VerticalScrollBarVisibility="Auto" BorderThickness="1,1,1,1" HorizontalScrollBarVisibility="Disabled" MaxLines="1" MaxLength="256" Padding="5,0,5,0" GotFocus="MessageTextBox_GotFocus" LostFocus="MessageTextBox_LostFocus" BorderBrush="Black" TextChanged="MessageTextBox_TextChanged" KeyDown="MessageTextBox_KeyDown" Margin="5,5,5,10"/>
+            <Label x:Name="PlaceholderText" Content="Write your message..." VerticalContentAlignment="Center" Padding="5,0,5,0" HorizontalContentAlignment="Stretch" IsHitTestVisible="False" Opacity="0.5"  Panel.ZIndex="1" Margin="5,5,5,10" IsEnabled="False"/>
+            <Button Grid.Column="2" x:Name="SendMessageButton" Content="Send" Margin="0,5,10,10" Click="SendMessage" IsEnabled="False"/>
+        </Grid>
+        <Button x:Name="DisconnectButton" Content="Disconnect" Margin="10,5,5,10" Grid.Row="2" Click="DisconnectButton_Click" IsEnabled="False"/>
     </Grid>
 </Window>
