@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Text;
 using System.Text.Json;
 
@@ -21,9 +22,12 @@ namespace LANchat.Connection
 
         public MessageTimePair MessageAndTime;
 
+        private readonly DateTimeOffset _since = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero);
+
         public MessagePacket(string message) : base(PacketDataType.MESSAGE)
         {
-            MessageAndTime = new MessageTimePair(message, System.DateTime.Now.ToBinary());
+            TimeSpan time = DateTime.Now - _since;
+            MessageAndTime = new MessageTimePair(message, time.Ticks);
         }
 
         public MessagePacket(byte[] bytes) : base(PacketDataType.MESSAGE)

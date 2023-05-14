@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LANchat"
         mc:Ignorable="d"
-        Title="Settings" Height="200" Width="350" ResizeMode="NoResize">
+        Title="Settings" Height="200" Width="350" ResizeMode="NoResize" Icon="/program.png">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition/>

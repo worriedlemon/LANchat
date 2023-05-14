@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using System;
 using System.Linq;
+using System.Text;
 
 namespace LANchat
 {
@@ -161,6 +162,7 @@ namespace LANchat
                         continue;
                 }
                 Console.WriteLine("Detected packet {0}", (PacketDataType)buffer[0]);
+                Console.WriteLine(Encoding.UTF8.GetString(buffer));
                 packet.Apply(this, connection);
             }
             _connections.Remove(connection);
