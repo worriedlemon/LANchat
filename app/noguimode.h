@@ -1,6 +1,7 @@
 #ifndef NOGUIMODE_H
 #define NOGUIMODE_H
 
+/// Static behavior class for app no-GUI mode
 class NoGUIMode
 {
 private:
@@ -9,6 +10,7 @@ private:
     NoGUIMode operator=(NoGUIMode&);
 
 public:
+    /// Entering no-GUI mode
     static void Enter();
 };
 

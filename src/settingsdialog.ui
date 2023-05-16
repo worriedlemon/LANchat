@@ -34,6 +34,10 @@
   <property name="windowTitle">
    <string>Settings</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>../icons/program.png</normaloff>../icons/program.png</iconset>
+  </property>
   <property name="locale">
    <locale language="English" country="UnitedStates"/>
   </property>

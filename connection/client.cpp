@@ -13,12 +13,13 @@ namespace Connection
           connection(instance)
     {
         connect(connection, SIGNAL(readyRead()), this, SLOT(ReceivePacket()));
+        connect(connection, SIGNAL(disconnected()), this, SLOT(CloseConnection()));
     }
 
     ChatClient::~ChatClient()
     {
         disconnect(connection, SIGNAL(readyRead()), this, SLOT(ReceivePacket()));
-        connection->close();
+        if (connection->state() == QAbstractSocket::ConnectedState) connection->close();
         delete connection;
     }
 
@@ -46,6 +47,8 @@ namespace Connection
     void ChatClient::ReceivePacket()
     {
         QByteArray bytes = connection->readAll();
+
+        packetleft:
         PacketDataType dataType = AbstractTcpPacket::DeterminePacketType(bytes);
         bytes = bytes.remove(0, 1);
         qLOG << "Received packet of type "
@@ -70,5 +73,12 @@ namespace Connection
         }
         pkg->Apply(mw, *this);
         delete pkg;
+
+        if (dataType == PacketDataType::REQUEST && bytes.length() > 0) goto packetleft;
+    }
+
+    void ChatClient::CloseConnection()
+    {
+        mw.RemoveConnection(this);
     }
 } // namespace Connection

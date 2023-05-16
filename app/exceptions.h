@@ -4,6 +4,7 @@
 
 namespace Exceptions
 {
+    /// Just an exception to work with. Contains only string message.
     class CommonException : QException
     {
     public:

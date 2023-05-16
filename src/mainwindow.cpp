@@ -12,7 +12,7 @@
 
 using namespace Connection;
 
-#include <QtConcurrent>
+#include <QDateTime>
 
 extern AppSettings SETTINGS;
 
@@ -32,6 +32,7 @@ MainWindow::MainWindow()
 
 MainWindow::~MainWindow()
 {
+    history.clear();
     listener.close();
     delete ui;
 }
@@ -76,13 +77,29 @@ void MainWindow::AddConnection(ChatClientItem* item)
 
 void MainWindow::RemoveConnection()
 {
-    ui->ChatList->clearSelection();
     ui->ChatList->removeItemWidget(currentChat);
-    history.remove(currentChat->GetLink());
+    ChatClient* chat = currentChat->GetLink();
+    history.remove(chat);
+    delete chat;
     delete currentChat;
     currentChat = nullptr;
+    ui->MessageArea->clear();
     ui->DisconnectButton->setEnabled(false);
     ui->MessageTextEdit->setEnabled(false);
+    ui->ChatList->clearSelection();
+}
+
+void MainWindow::RemoveConnection(ChatClient* client)
+{
+    QList<QListWidgetItem*> foundItems = ui->ChatList->findItems(ChatClientItem(client).text(), Qt::MatchExactly);
+    QListWidgetItem* found = foundItems[0];
+    ChatClient* chat = ((ChatClientItem*)found)->GetLink();
+    QString timeUserString = tr("[_PROGRAM] at ") + QDateTime::currentDateTime().toString("hh:mm:ss dd/MM/yyyy");
+    QString messageString = tr("-------- Client ") + found->text() + tr(" disconnected --------");
+    history[chat].append(timeUserString);
+    history[chat].append(messageString);
+    if (currentChat != nullptr && chat == currentChat->GetLink())
+        ProcessMessage(timeUserString, messageString);
 }
 
 void MainWindow::ShowChatFor(QListWidgetItem* item)
@@ -101,11 +118,6 @@ void MainWindow::ShowChatFor(QListWidgetItem* item)
         ui->MessageArea->addItem(text);
 }
 
-QListWidget& MainWindow::GetChatList() const
-{
-    return *ui->ChatList;
-}
-
 void MainWindow::ProcessMessage(QString& timeUserString, QString& messageString)
 {
     ui->MessageArea->addItem(timeUserString);
@@ -122,7 +134,8 @@ void MainWindow::ProcessMessage(MessageTimePair const & pair, ChatClient* client
 
     history[client].append(timeUserString);
     history[client].append(messageString);
-    if (client == currentChat->GetLink()) ProcessMessage(timeUserString, messageString);
+    if (currentChat != nullptr && client == currentChat->GetLink())
+        ProcessMessage(timeUserString, messageString);
 }
 
 void MainWindow::SendMessage()

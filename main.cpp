@@ -8,24 +8,24 @@
 
 #include <QApplication>
 #include <QDir>
+#include <QTranslator>
 
 const QString SETTINGS_DIR("./saved");
 
 AppSettings SETTINGS;
 QString SETTINGS_PATH = SETTINGS_DIR + "/settings.xml";
 
-void StartGUIMode(MainWindow& mw)
-{
-
-}
-
+/// Enables global variables.
+/// Actually should also content settings information, but for now they are global variables.
 void SetGlobalVariables()
 {
     GlobalDefs::Instantiate();
     GlobalDefs::SetApplicationTitle("LANchat");
     GlobalDefs::SetApplicationVersion("1.0");
+    //GlobalDefs::SetSettingsPath(QDir::homePath() + "/.config/lanchat/settings.xml");
 }
 
+/// Loading application settings, e.g. Username, Port
 void InitializeApplicationSettings()
 {
     qLOG << "Loading settings file: " << SETTINGS_PATH;
@@ -45,6 +45,7 @@ void InitializeApplicationSettings()
 
 }
 
+/// Program entry point
 int main(int argc, char *argv[])
 {
     int returnCode = 0;
@@ -65,7 +66,6 @@ int main(int argc, char *argv[])
             application = new QApplication(argc, argv);
             w = new MainWindow();
             w->show();
-            StartGUIMode(*w);
             returnCode = application->exec();
         }
     }

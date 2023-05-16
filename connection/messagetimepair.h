@@ -4,6 +4,7 @@
 
 namespace Connection
 {
+    /// Simple data struct of a message and time
     struct MessageTimePair
     {
         QString Message;

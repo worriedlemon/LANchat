@@ -5,6 +5,7 @@
 
 namespace Connection
 {
+    /// TCP packet, which contains message string and time code
     class MessagePacket : public AbstractTcpPacket
     {
         MessageTimePair MessageAndTime;

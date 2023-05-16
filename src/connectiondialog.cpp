@@ -8,6 +8,7 @@
 
 #include <QHostAddress>
 #include <QMessageBox>
+#include <QThread>
 
 extern AppSettings SETTINGS;
 
@@ -63,7 +64,7 @@ void ConnectionDialog::accept()
     {
         QMessageBox msgBox;
         msgBox.setIcon(QMessageBox::Critical);
-        msgBox.setWindowTitle("IP address is invalid");
+        msgBox.setWindowTitle(tr("IP address is invalid"));
         msgBox.setText(tr("IP address is invalid.\nAll bytes have to have value between 0 and 255."));
         msgBox.exec();
         return;
@@ -82,7 +83,7 @@ void ConnectionDialog::accept()
     {
         QMessageBox msgBox;
         msgBox.setIcon(QMessageBox::Critical);
-        msgBox.setWindowTitle("Connection error");
+        msgBox.setWindowTitle(tr("Connection error"));
         msgBox.setText(tr("Cannot connect to specified host.\nPlease, check your connection settings."));
         msgBox.exec();
         delete socket;

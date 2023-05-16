@@ -5,6 +5,7 @@
 
 namespace Connection
 {
+    /// TCP packet, which contains common information about host
     class InformationPacket : public AbstractTcpPacket
     {
     public:

@@ -13,11 +13,6 @@ namespace Connection
         return *(new QByteArray(1, dataType));
     }
 
-    PacketDataType AbstractTcpPacket::DeterminePacketType(AbstractTcpPacket &pkg)
-    {
-        return PacketDataType(pkg.dataType);
-    }
-
     PacketDataType AbstractTcpPacket::DeterminePacketType(QByteArray &arr)
     {
         return PacketDataType(byte(arr[0]));

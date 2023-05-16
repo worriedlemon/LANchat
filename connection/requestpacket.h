@@ -5,6 +5,7 @@
 
 namespace Connection
 {
+    /// TCP packet, which only purpose is to be sent to a host to get information packet from it
     class RequestPacket : public AbstractTcpPacket
     {
     public:

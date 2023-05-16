@@ -4,6 +4,8 @@
 
 #include <iostream>
 
+/// This program module has not been implemented yet.
+/// For now it only contents _stdio_ interpreter, which knows only "exit" keyword.
 void NoGUIMode::Enter()
 {
     char* input = new char[128];

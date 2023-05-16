@@ -9,6 +9,7 @@ using namespace Exceptions;
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
+/// Static class, which can save and load ILoadable data
 class FileManager
 {
 private:
@@ -16,6 +17,7 @@ private:
     FileManager(FileManager& other) { };
 
 public:
+    /// Function for saving an ILoadable into XML notation
     template <class ILoadableType>
     static void SaveToXML(ILoadableType& obj, QString& path)
     {
@@ -37,6 +39,7 @@ public:
         writer.writeEndElement();
     }
 
+    /// Function for loading an ILoadable from XML notation
     template <class ILoadableType>
     static ILoadableType& LoadFromXML(QString& path)
     {
