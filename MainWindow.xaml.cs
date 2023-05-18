@@ -105,6 +105,7 @@ namespace LANchat
         private void DisconnectButton_Click(object sender, RoutedEventArgs e)
         {
             _currentChat.Close();
+            _history.Remove(_currentChat);
             _currentChat = null;
             Messages.Items.Clear();
             DisconnectButton.IsEnabled = false;
@@ -126,13 +127,14 @@ namespace LANchat
 
         public async void StartReceivingFromConnection(ChatClient connection)
         {
+            string clientName = connection.ToString();
             while (connection.Client.Connected)
             {
                 byte[] buffer = new byte[1024];
                 int count = 0;
 
                 if (!await Task.Run(() => {
-                    string clientName = connection.ToString();
+                    clientName = connection.ToString();
                     try
                     {
                         count = connection.Client.Receive(buffer);
@@ -161,12 +163,12 @@ namespace LANchat
                         Console.WriteLine("Unknown packet caught - data type is wrong. Skipping...");
                         continue;
                 }
-                Console.WriteLine("Detected packet {0}", (PacketDataType)buffer[0]);
+                Console.WriteLine("Detected packet {0}:", (PacketDataType)buffer[0]);
                 Console.WriteLine(Encoding.UTF8.GetString(buffer));
                 packet.Apply(this, connection);
             }
-            _connections.Remove(connection);
-            UpdateChatList();
+            _history[connection].Add($"[_PROGRAM] at {DateTime.Now:hh:mm:ss dd/MM/yyyy}");
+            _history[connection].Add($"-------- Client {clientName} disconnected --------");
         }
 
         public void UpdateClientInfo(ChatClient client, AppSettings info)
