@@ -2,16 +2,21 @@
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace LANchat.Connection
 {
     public class MessagePacket : AbstractTcpPacket
     {
-        [System.Serializable]
+
+        [Serializable]
         public class MessageTimePair
         {
             public string Message;
             public long Time;
+
+            [JsonIgnore]
+            public static DateTime Since = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
 
             public MessageTimePair(string message, long time)
             {
@@ -22,12 +27,10 @@ namespace LANchat.Connection
 
         public MessageTimePair MessageAndTime;
 
-        private readonly DateTimeOffset _since = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero);
-
         public MessagePacket(string message) : base(PacketDataType.MESSAGE)
         {
-            TimeSpan time = DateTime.Now - _since;
-            MessageAndTime = new MessageTimePair(message, time.Ticks);
+            long secondsFromEpoch = (long)(DateTime.Now.ToUniversalTime() - MessageTimePair.Since).TotalSeconds;
+            MessageAndTime = new MessageTimePair(message, secondsFromEpoch);
         }
 
         public MessagePacket(byte[] bytes) : base(PacketDataType.MESSAGE)

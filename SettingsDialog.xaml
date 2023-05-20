@@ -18,8 +18,8 @@
         </Grid.ColumnDefinitions>
         <Label Content="Username:" HorizontalAlignment="Center" Height="41" VerticalAlignment="Center" Width="68" VerticalContentAlignment="Center"/>
         <Label Content="Port:" HorizontalAlignment="Center" Height="41" VerticalAlignment="Center" Width="68" VerticalContentAlignment="Center" Grid.Row="1"/>
-        <TextBox x:Name="UsernameTextBox" Grid.Column="1" HorizontalAlignment="Left" Margin="10,0,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Center" Width="131" InputScope="LogOnName" MaxLines="1" MaxLength="16"/>
-        <TextBox x:Name="PortSegment" Grid.Column="1" HorizontalAlignment="Left" Margin="10,0,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Center" Width="50" InputScope="Digits" HorizontalContentAlignment="Center" MaxLines="1" MaxLength="2" Grid.Row="1" Initialized="PortSegment_Initialized" TextInput="PortSegment_TextInput"/>
+        <TextBox x:Name="UsernameTextBox" Grid.Column="1" HorizontalAlignment="Left" Margin="10,0,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Center" Width="131" InputScope="Srgs" MaxLines="1" MaxLength="24"/>
+        <TextBox x:Name="PortSegment" Grid.Column="1" HorizontalAlignment="Left" Margin="10,0,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Center" Width="50" InputScope="Digits" HorizontalContentAlignment="Center" MaxLines="1" MaxLength="5" Grid.Row="1" TextInput="PortSegment_TextInput"/>
         <Button x:Name="SaveSettingsButton" Grid.Column="1" Content="Save settings" HorizontalAlignment="Right" Margin="0,0,10,10" Grid.Row="2" VerticalAlignment="Bottom" Width="116" Height="30" Click="SaveSettingsButtonCLick"/>
         <Button x:Name="CancelIPConnectionButton" Grid.Column="1" Content="Cancel" HorizontalAlignment="Right" Margin="0,0,136,10" Grid.Row="2" VerticalAlignment="Bottom" Width="116" Height="30" Click="CancelButtonClick" IsDefault="True" IsCancel="True"/>
         <CheckBox x:Name="DefaultPortCheckbox" Grid.Column="1" Content="Default port" HorizontalAlignment="Left" Margin="110,0,0,0" Grid.Row="1" VerticalAlignment="Center" Checked="DefaultPortCheckboxChecked" Unchecked="DefaultPortCheckboxChecked" IsChecked="true"/>

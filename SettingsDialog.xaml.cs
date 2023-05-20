@@ -15,10 +15,7 @@ namespace LANchat
             InitializeComponent();
             UsernameTextBox.Text = App.Settings.Username;
             PortSegment.Text = App.Settings.Port.ToString();
-        }
-        private void PortSegment_Initialized(object sender, EventArgs e)
-        {
-            PortSegmentBlock(App.Settings.IsDefaultPort);
+            PortSegmentBlock((DefaultPortCheckbox.IsChecked = App.Settings.IsDefaultPort).Value);
         }
 
         private void PortSegmentBlock(bool block)
@@ -42,10 +39,43 @@ namespace LANchat
             PortSegmentBlock(DefaultPortCheckbox.IsChecked.Value);
         }
 
+        private bool UsernameValidator()
+        {
+            return (UsernameTextBox.Text.Length >= 4 || UsernameTextBox.Text.Length <= 24);
+        }
+
         private void SaveSettingsButtonCLick(object sender, RoutedEventArgs e)
         {
-            App.Settings.Username = UsernameTextBox.Text;
-            App.Settings.Port = Convert.ToUInt16(PortSegment.Text);
+            ushort newPort = Convert.ToUInt16(PortSegment.Text);
+
+            if (_pw.HasConnections() && App.Settings.Port != newPort)
+            {
+                MessageBox.Show(
+                    "You cannot change port if there are connected chat clients.",
+                    "Port change error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error
+                    );
+                return;
+            }
+            else
+            {
+                App.Settings.Port = newPort;
+                _pw.RestartPortListener();
+            }
+
+            if (!UsernameValidator())
+            {
+                MessageBox.Show(
+                    "Username should contain from 4 to 24 latin characters, including digits and underscore.",
+                    "Username invalid",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error
+                    );
+                return;
+            }
+            else App.Settings.Username = UsernameTextBox.Text;
+
             FileManager.SaveToXML(App.Settings, App.SettingsFilePath);
             _pw.UpdateAppSettingsInfo();
             Close();
