@@ -53,9 +53,10 @@ void ConnectionDialog::EnablePort(bool checked)
 
 void ConnectionDialog::CheckPort()
 {
-    QString input = ui->PortSegment->text();
-    ipSegmentValidator.fixup(input);
-    ui->PortSegment->setText(input);
+    if (ui->PortSegment->text() != "" && !ui->PortSegment->hasAcceptableInput())
+    {
+        ui->PortSegment->setText(QString::number(GlobalDefs::PortMaxValue));
+    }
 }
 
 void ConnectionDialog::accept()
@@ -74,11 +75,13 @@ void ConnectionDialog::accept()
                          (byte)ui->IPSegment2->text().toUInt() << 16 |
                          (byte)ui->IPSegment3->text().toUInt() << 8 |
                          (byte)ui->IPSegment4->text().toUInt());
+
     quint16 port = ui->PortSegment->text().toUShort();
     qLOG << "Parsed address: " << address.toString() << ":" << port;
 
     QTcpSocket* socket = new QTcpSocket();
     socket->connectToHost(address, port);
+
     if (!socket->waitForConnected(10000))
     {
         QMessageBox msgBox;

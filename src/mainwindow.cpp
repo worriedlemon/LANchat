@@ -39,7 +39,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::AcceptConnection()
 {
-    ChatClient* client = new ChatClient(listener.nextPendingConnection(), *this);
+    ChatClient* client = new ChatClient(listener.nextPendingConnection(), *this, ChatClient::ChatType::INCOMING);
     ChatClientItem* item = new ChatClientItem(client);
     qLOG << "Listener caught pending connection: " << item->text();
     AddConnection(item);
@@ -136,6 +136,11 @@ void MainWindow::ProcessMessage(MessageTimePair const & pair, ChatClient* client
     history[client].append(messageString);
     if (currentChat != nullptr && client == currentChat->GetLink())
         ProcessMessage(timeUserString, messageString);
+}
+
+bool MainWindow::HasConnections() const
+{
+    return ui->ChatList->children().count() != 0;
 }
 
 void MainWindow::SendMessage()

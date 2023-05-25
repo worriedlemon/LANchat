@@ -44,6 +44,8 @@ public:
     void UpdateClientInfo(Connection::ChatClient& client, AppSettings& information);
     /// Writes information to the client chat field, that it is no longer connected
     void RemoveConnection(Connection::ChatClient* client);
+    /// Returns true if there are connected chat clients
+    bool HasConnections() const;
 
 private:
     /// Process message for the current chat

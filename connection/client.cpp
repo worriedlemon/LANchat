@@ -7,11 +7,12 @@
 
 namespace Connection
 {
-    ChatClient::ChatClient(QTcpSocket* instance, MainWindow& mw)
+    ChatClient::ChatClient(QTcpSocket* instance, MainWindow& mw, ChatType t)
         : Name(""),
           mw(mw),
           connection(instance)
     {
+        Type = t;
         connect(connection, SIGNAL(readyRead()), this, SLOT(ReceivePacket()));
         connect(connection, SIGNAL(disconnected()), this, SLOT(CloseConnection()));
     }
@@ -40,8 +41,8 @@ namespace Connection
         {
             name = "(" + Name + ") ";
         }
-        return name + QHostAddress(connection->peerAddress().toIPv4Address()).toString()
-                + ":" + QString::number(connection->peerPort());
+        QString portString = QString::number(Type == ChatType::INCOMING ? connection->localPort() : connection->peerPort());
+        return name + QHostAddress(connection->peerAddress().toIPv4Address()).toString() + ":" + portString;
     }
 
     void ChatClient::ReceivePacket()

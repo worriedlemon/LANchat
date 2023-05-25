@@ -43,9 +43,10 @@ void SettingsDialog::EnablePort(bool checked)
 
 void SettingsDialog::CheckPort()
 {
-    QString input = ui->PortField->text();
-    portValidator.fixup(input);
-    ui->PortField->setText(input);
+    if (ui->PortField->text() != "" && !ui->PortField->hasAcceptableInput())
+    {
+        ui->PortField->setText(QString::number(GlobalDefs::PortMaxValue));
+    }
 }
 
 void SettingsDialog::accept()
@@ -53,6 +54,7 @@ void SettingsDialog::accept()
     if (!ui->UsernameTextEdit->hasAcceptableInput())
     {
         QMessageBox msg;
+        msg.setWindowTitle("Invalid username");
         msg.setText(tr("Entered username is inacceptable:\n"
                        "1) it contains only latin characters, digits and underlines\n"
                        "2) its length is 4 to 24 characters."));
@@ -61,8 +63,20 @@ void SettingsDialog::accept()
         return;
     }
 
+    ushort newPort = ui->PortField->text().toUShort();
+
+    if (((MainWindow*)parent())->HasConnections() && newPort != SETTINGS.Port)
+    {
+        QMessageBox msg;
+        msg.setWindowTitle("Port change is unavailable");
+        msg.setText(tr("Tou cannot change port while there are connected chat clients."));
+        msg.setIcon(QMessageBox::Critical);
+        msg.exec();
+        return;
+    }
+
     SETTINGS.Username = ui->UsernameTextEdit->text();
-    SETTINGS.Port = ui->PortField->text().toUShort();
+    SETTINGS.Port = newPort;
     qLOG << "Saving new settings...";
     FileManager::SaveToXML<AppSettings>(SETTINGS, SETTINGS_PATH);
     ((MainWindow*)parent())->UpdateCurrentSessionInfo();

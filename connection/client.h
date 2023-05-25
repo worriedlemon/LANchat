@@ -19,8 +19,12 @@ namespace Connection
 
     public:
         QString Name;
+        enum class ChatType {
+            INCOMING,
+            OUTCOMING
+        } Type;
 
-        explicit ChatClient(QTcpSocket* instance, MainWindow& mw);
+        explicit ChatClient(QTcpSocket* instance, MainWindow& mw, ChatType t = ChatType::OUTCOMING);
         ~ChatClient();
 
         /// Sending TCP packet to peer
